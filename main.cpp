@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     QList<SerSocket *> ser_sockets;
     QSettings settings(settingsFile, QSettings::IniFormat);
     QString log_file = settings.value("log_file", "STDOUT").toString();
-    int log_level = settings.value("log_level", 0).toInt();
+    int log_level = settings.value("log_level", 1).toInt();
     Logger::init(log_file, log_level);
 
     QStringList groups = settings.childGroups();
@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
         unsigned short tcpPort = settings.value(QString("%1/tcp_port").arg(group), 5331).toInt();
         ss->setTcpPort(tcpPort);
 
+        QString serialPort = settings.value(QString("%1/serial_port").arg(group), "/dev/ttySP0").toString();
+        ss.setSerialPort(serialPort);
         int baudRate = settings.value(QString("%1/baud_rate").arg(group), 115200).toInt();
         ss->setBaudRate(baudRate);
         QChar parity = settings.value(QString("%1/parity").arg(group), 'N').toChar();

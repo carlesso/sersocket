@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         ss->setTcpPort(tcpPort);
 
         QString serialPort = settings.value(QString("%1/serial_port").arg(group), "/dev/ttySP0").toString();
-        ss.setSerialPort(serialPort);
+        ss->setSerialPort(serialPort);
         int baudRate = settings.value(QString("%1/baud_rate").arg(group), 115200).toInt();
         ss->setBaudRate(baudRate);
         QChar parity = settings.value(QString("%1/parity").arg(group), 'N').toChar();

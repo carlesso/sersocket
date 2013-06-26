@@ -15,6 +15,11 @@ void SerSocket::setTcpPort(unsigned short port)
     m_tcpPort = port;
 }
 
+void SerSocket::setMaxClients(int max_clients)
+{
+    m_maxTcpClients = max_clients;
+}
+
 void SerSocket::setSerialPort(const QString &serialPort)
 {
     m_serialPort = serialPort;
@@ -86,7 +91,7 @@ void SerSocket::start()
     if (m_serial->open(QIODevice::ReadWrite)) {
         Logger::debug("Device opened, listening for data");
         connect(m_serial, SIGNAL(readyRead()), this, SLOT(serialReadyRead()));
-        connect(m_serial, SIGNAL(drsChanged(bool)), this, SLOT(serialDrsChanged(bool)));
+        connect(m_serial, SIGNAL(dsrChanged(bool)), this, SLOT(serialDsrChanged(bool)));
     } else {
         Logger::debug(QString("Device failed to open: %1").arg(m_serial->errorString()));
     }
@@ -99,10 +104,15 @@ void SerSocket::end()
 void SerSocket::newTcpClient()
 {
     QTcpSocket * client = m_server->nextPendingConnection();
-    connect(client, SIGNAL(readyRead()), this, SLOT(onNewData()));
-    connect(client, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
-    m_clients.append(client);
-    Logger::debug(QString("New client attached, %1 client(s) now connected").arg(m_clients.size()));
+    if ((m_maxTcpClients == 0) || (m_clients.size() < m_maxTcpClients)) {
+        connect(client, SIGNAL(readyRead()), this, SLOT(onNewData()));
+        connect(client, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
+        m_clients.append(client);
+        Logger::debug(QString("New client attached, %1 client(s) now connected").arg(m_clients.size()));
+    } else {
+        client->close();
+        Logger::warn(QString("New client attached, but max clients reached. Closing Socket. %1 client(s) already").arg(m_clients.size()));
+    }
 }
 
 void SerSocket::onNewData()
@@ -132,15 +142,14 @@ void SerSocket::serialReadyRead()
     bytes.resize(a);
     m_serial->read(bytes.data(), bytes.size());
 
-    qDebug() << "bytes read:" << bytes.size();
-    qDebug() << "bytes:" << bytes;
+    Logger::debug(QString("Read %1 bytes.").arg(bytes.size()));
 
     foreach (QTcpSocket *c, m_clients) {
         c->write(bytes);
     }
 }
 
-void SerSocket::serialDrsChanged(bool status)
+void SerSocket::serialDsrChanged(bool status)
 {
     if (status) {
         Logger::info(QString("Device on %1 has been turned on").arg(m_serialPort));

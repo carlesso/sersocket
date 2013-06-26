@@ -3,7 +3,9 @@ SerSocket
 
 SerSocket is a QT5 implementation of a Serial/Socket proxy. It simply creates a TcpSocket, opens a Serial Port and cross-connect the Signals/Slots.
 
-That's it. Pretty simple. Any number of clients can be connected in the same time (the logs at level debug will show the number of clients connected
+It's basically a QT porting of [SerProxy](http://www.lspace.nildram.co.uk/freeware.html) project.
+
+That's it. Pretty simple. Any (custom) number of clients can be connected in the same time (the logs at level debug will show the number of clients connected
 at every connect/disconnect message).
 
 
@@ -34,12 +36,12 @@ log_file = /var/log/sersocket.log
 # 0 Debug, 1 Info, 2 Warn, 3 Error, 4 Fatal
 log_level = 0
 
-# First group of binding, you can add as many as you want
+# First group of binding, you can add as many as you want. Listed valutes are the defaults
 [proxy1]
-tcp_port = 5331
-serial_port = /dev/ttySP0
-baud_rate = 115200
-parity = N
-stop_bits = 1
-
+tcp_port = 5331               # Tcp Port
+max_tcp_clients = 0           # Max number of clients allowed, 0 is unlimited
+serial_port = /dev/ttySP0     # The Serial Port device, should be something like /dev/ttyS* or /dev/ttyUSB* if using a USB-Serial converter (pl2303 tested)
+baud_rate = 115200            # The BaudRate of the Serial Port
+parity = N                    # The Parity to use, can be [N]one or [E]ven
+stop_bits = 1                 # StopBits of the serial port
 ```

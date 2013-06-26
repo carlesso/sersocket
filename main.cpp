@@ -53,6 +53,9 @@ int main(int argc, char *argv[])
         unsigned short tcpPort = settings.value(QString("%1/tcp_port").arg(group), 5331).toInt();
         ss->setTcpPort(tcpPort);
 
+        int max_tcp_clients = settings.value(QString("%1/max_tcp_clients").arg(group), 0).toInt();
+        ss->setMaxClients(max_tcp_clients);
+
         QString serialPort = settings.value(QString("%1/serial_port").arg(group), "/dev/ttySP0").toString();
         ss->setSerialPort(serialPort);
         int baudRate = settings.value(QString("%1/baud_rate").arg(group), 115200).toInt();

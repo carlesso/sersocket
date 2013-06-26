@@ -14,6 +14,7 @@ class SerSocket : public QObject
 public:
     explicit SerSocket(QObject *parent = 0);
     void setTcpPort(unsigned short port);
+    void setMaxClients(int max_clients);
     void setSerialPort(const QString &serialPort);
     void setBaudRate(int baudRate);
     void setParity(QChar parity);
@@ -28,10 +29,12 @@ public slots:
     void onNewData();
     void clientDisconnected();
     void serialReadyRead();
-    void serialDrsChanged(bool status);
+    void serialDsrChanged(bool status);
     
 private:
     unsigned short m_tcpPort;
+    int m_maxTcpClients;
+
     QString m_serialPort;
     BaudRateType m_baudRate;
     ParityType m_parity;
